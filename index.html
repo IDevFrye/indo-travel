@@ -11,6 +11,12 @@
   <link rel="icon" type="image/png" href="img/favicon.png">
   <link rel="stylesheet" href="css/index.css">
   <link rel="stylesheet" href="css/timer.css">
+  <script type="module">
+    import {timer} from './timer.js';
+    document.addEventListener('DOMContentLoaded', () => {
+      timer();
+    });
+  </script>
   <title>Indonesia</title>
 </head>
 <body>
@@ -44,7 +50,7 @@
 
           <p class="hero__text">Действует скидка 20% на туры от 6&nbsp;человек</p>
 
-          <div class="hero__timer timer" data-timer-deadline="15/01/2022">
+          <div class="hero__timer timer" data-deadline="29/01/2025 21:14">
             <p class="timer__title">До конца акции осталось:</p>
             <p class="timer__item timer__item_days">
               <span class="timer__count timer__count_days">2</span>
