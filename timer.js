@@ -1,32 +1,16 @@
-export const timer = () => {
-  const timerDiv = document.querySelector('.timer');
-  const timerCount = document.querySelectorAll('.timer__count');
-  const timerUnits = document.querySelectorAll('.timer__units');
-  const timerDays = document.querySelector('.timer__item_days');
+export const timer = () => {  
   const heroText = document.querySelector('.hero__text');
-  const heroTimer = document.querySelector('.hero__timer');
+
   const declensions = [
     ['день', 'дня', 'дней'],
     ['час', 'часа', 'часов'],
     ['минута', 'минуты', 'минут'],
     ['секунда', 'секунды', 'секунд']
-  ]
+  ];
 
-  const deadlineStr = timerDiv.dataset.deadline;
-  const [datePart, timePart] = deadlineStr.split(' ');
-  const [day, month, year] = datePart.split('/');
-  const [hours, minutes] = timePart.split(':');
-
-  const deadlineGMT3 = new Date(year, month - 1, day, hours, minutes, 0);
-  const timezoneOffset = new Date().getTimezoneOffset() / 60;
-  const gmt3Offset = -3;
-  const userDeadline = new Date(deadlineGMT3.getTime() + (gmt3Offset - timezoneOffset) * 60 * 60 * 1000);
-  
-  let secondsAdded = false;
-
-  const getTimeRemaining = () => {
+  const getTimeRemaining = (deadline) => {
     const now = new Date();
-    const diff = userDeadline - now;
+    const diff = deadline - now;
     
     if (diff <= 0) {
       return { diff: 0, days: 0, hours: 0, minutes: 0 };
@@ -54,12 +38,16 @@ export const timer = () => {
     return num < 10 ? `0${num}` : num;
   };
 
-  const updateTimer = () => {
-    const {diff, days, hours, minutes, seconds} = getTimeRemaining();
+  const updateTimer = (timerElement, deadline, secondsAdded) => {
+    const timerCount = timerElement.querySelectorAll('.timer__count');
+    const timerUnits = timerElement.querySelectorAll('.timer__units');
+    const timerDays = timerElement.querySelector('.timer__item_days');
+
+    const {diff, days, hours, minutes, seconds} = getTimeRemaining(deadline);
 
     if (diff === 0) {
       heroText.remove();
-      heroTimer.remove();
+      timerElement.remove();
       return;
     };
 
@@ -84,11 +72,11 @@ export const timer = () => {
         timerSeconds.insertAdjacentHTML('afterbegin', `
           <span class="timer__count timer__count_seconds"></span>
           <span class="timer__units timer__units_seconds"></span>`);
-        timerDiv.append(timerSeconds);
+        timerElement.append(timerSeconds);
         secondsAdded = true;
       }
-      const timerCountNew = document.querySelectorAll('.timer__count');
-      const timerUnitsNew = document.querySelectorAll('.timer__units');
+      const timerCountNew = timerElement.querySelectorAll('.timer__count');
+      const timerUnitsNew = timerElement.querySelectorAll('.timer__units');
       timerCountNew.forEach((item, index) => {
         if (index === 0) {
           item.textContent = formatNumber(hours);
@@ -98,13 +86,48 @@ export const timer = () => {
           item.textContent = formatNumber(seconds);
         }
       });  
+      
       timerUnitsNew.forEach((item, index) => {
         item.textContent = declension(timerCountNew[index].textContent, declensions[index + 1]);
       });
     }
     
-    setTimeout(updateTimer, 1000);
+    setTimeout(() => updateTimer(timerElement, deadline, secondsAdded), 1000);
   };
 
-  updateTimer();
+  const timerElements = document.querySelectorAll('[data-timer-deadline]');
+
+  timerElements.forEach((element) => {
+    const deadlineStr = element.dataset.timerDeadline;
+    const [datePart, timePart] = deadlineStr.split(' ');
+    const [day, month, year] = datePart.split('/');
+    const [hours, minutes] = timePart.split(':');
+
+    const deadlineGMT3 = new Date(year, month - 1, day, hours, minutes, 0);
+    const timezoneOffset = new Date().getTimezoneOffset() / 60;
+    const gmt3Offset = -3;
+    const userDeadline = new Date(deadlineGMT3.getTime() + (gmt3Offset - timezoneOffset) * 60 * 60 * 1000);
+    
+    let secondsAdded = false;
+
+    const timerMarkup = `
+      <p class="timer__title">До конца акции осталось:</p>
+      <p class="timer__item timer__item_days">
+        <span class="timer__count timer__count_days">00</span>
+        <span class="timer__units timer__units_days">дней</span>
+      </p>
+      <p class="timer__item timer__item_hours">
+        <span class="timer__count timer__count_hours">00</span>
+        <span class="timer__units timer__units_hours">часов</span>
+      </p>
+      <p class="timer__item timer__item_minutes">
+        <span class="timer__count timer__count_minutes">00</span>
+        <span class="timer__units timer__units_minutes">минут</span>
+      </p>
+    `;
+    
+    element.innerHTML = timerMarkup;
+
+    updateTimer(element, userDeadline, secondsAdded);
+  });
 };
