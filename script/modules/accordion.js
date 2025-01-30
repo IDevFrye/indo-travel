@@ -13,19 +13,26 @@ export const acc = () => {
 
   buttons.forEach((btn, index) => {
     btn.addEventListener('click', () => {
-      for(let i = 0; i <= items.length; i++) {
+      items.forEach((item, i) => {
+        const textWrapper = textWrappers[i];
         if (index === i) {
-          textWrappers[i].style.height =
-            items[i].classList.contains('travel__item_active') ?
+          textWrapper.style.height =
+            item.classList.contains('travel__item_active') ?
             '' : `${heightWrapper}px`;
-          items[i].classList.toggle('travel__item_active');
+          item.classList.toggle('travel__item_active');
         } else {
           if (items[i].classList.contains('travel__item_active')) {
             items[i].classList.remove('travel__item_active');
           };
-          textWrappers[i].style.height = '';
-        }
-      }
+          textWrapper.style.height = '';
+        };
+      });
     });
-  })
+  });
+
+  items.forEach((item, i) => {
+    if (item.classList.contains('travel__item_active')) {
+      textWrappers[i].style.height = `${heightWrapper}px`;
+    }
+  });
 };
