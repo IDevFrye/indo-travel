@@ -1,5 +1,5 @@
-export const timer = () => {  
-  const heroText = document.querySelector('.hero__text');
+export const timer = (hero) => {  
+  const heroText = hero.map((item) => document.querySelector(item));
 
   const declensions = [
     ['день', 'дня', 'дней'],
@@ -38,7 +38,7 @@ export const timer = () => {
     return num < 10 ? `0${num}` : num;
   };
 
-  const updateTimer = (timerElement, deadline, secondsAdded) => {
+  const updateTimer = (timerElement, index, deadline, secondsAdded) => {
     const timerCount = timerElement.querySelectorAll('.timer__count');
     const timerUnits = timerElement.querySelectorAll('.timer__units');
     const timerDays = timerElement.querySelector('.timer__item_days');
@@ -46,7 +46,9 @@ export const timer = () => {
     const {diff, days, hours, minutes, seconds} = getTimeRemaining(deadline);
 
     if (diff === 0) {
-      heroText.remove();
+      if (heroText[index]) {
+        heroText[index].remove()
+      };
       timerElement.remove();
       return;
     };
@@ -92,12 +94,12 @@ export const timer = () => {
       });
     }
     
-    setTimeout(() => updateTimer(timerElement, deadline, secondsAdded), 1000);
+    setTimeout(() => updateTimer(timerElement, index, deadline, secondsAdded), 1000);
   };
 
   const timerElements = document.querySelectorAll('[data-timer-deadline]');
 
-  timerElements.forEach((element) => {
+  timerElements.forEach((element, index) => {
     const deadlineStr = element.dataset.timerDeadline;
     const [datePart, timePart] = deadlineStr.split(' ');
     const [day, month, year] = datePart.split('/');
@@ -128,6 +130,6 @@ export const timer = () => {
     
     element.innerHTML = timerMarkup;
 
-    updateTimer(element, userDeadline, secondsAdded);
+    updateTimer(element, index, userDeadline, secondsAdded);
   });
 };
