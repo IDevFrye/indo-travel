@@ -12,7 +12,6 @@ export const burgerMenu = () => {
     const burgerOffset = 200;
     const burgerWidthOffset = 300;
     const leftEdge = menuButton.offsetLeft;
-    console.log('leftEdge: ', leftEdge);
     const startPosition = open ? 
       leftEdge - burgerWidthOffset : leftEdge - burgerOffset;
     const endPosition = open ? 
@@ -30,7 +29,7 @@ export const burgerMenu = () => {
       } else {
         cancelAnimationFrame(animationFrame);
         if (!open) menu.classList.remove('header__menu_active');
-      }
+      };
     };
 
     if (open) menu.classList.add('header__menu_active');
@@ -48,13 +47,13 @@ export const burgerMenu = () => {
     link.addEventListener('click', () => {
       isOpen = false;
       animateMenu(isOpen);
-    })
+    });
   });
 
   document.addEventListener('click', (event) => {
     if (!menu.contains(event.target) && !menuButton.contains(event.target)) {
       isOpen = false;
       animateMenu(isOpen);
-    }
+    };
   });
 };
