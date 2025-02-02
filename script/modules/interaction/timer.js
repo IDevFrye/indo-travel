@@ -1,3 +1,13 @@
+export const declension = (num, words) => {
+  if (num % 10 === 1 && num % 100 !== 11) {
+      return words[0];
+  } else if (num % 10 >= 2 && num % 10 <= 4 && (num % 100 < 10 || num % 100 >= 20)) {
+      return words[1];
+  } else {
+      return words[2];
+  };
+};
+
 export const timer = (hero) => {  
   const heroText = hero.map((item) => document.querySelector(item));
 
@@ -22,16 +32,6 @@ export const timer = (hero) => {
     const seconds = Math.floor((diff / (1000)) % 60);
 
     return {diff, days, hours, minutes, seconds};
-  };
-
-  const declension = (num, words) => {
-    if (num % 10 === 1 && num % 100 !== 11) {
-        return words[0];
-    } else if (num % 10 >= 2 && num % 10 <= 4 && (num % 100 < 10 || num % 100 >= 20)) {
-        return words[1];
-    } else {
-        return words[2];
-    };
   };
 
   const formatNumber = (num) => {

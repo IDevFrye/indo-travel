@@ -1,7 +1,9 @@
-import {timer} from './modules/timer.js';
-import {acc} from './modules/accordion.js';
-import {burgerMenu} from './modules/burger.js';
-import {fly} from './modules/fly.js';
+import {timer} from './modules/interaction/timer.js';
+import {acc} from './modules/interaction/accordion.js';
+import {burgerMenu} from './modules/interaction/burger.js';
+import {fly} from './modules/interaction/fly.js';
+
+import {renderLists} from './modules/render.js'
 
 export const init = () => {
   const heroText = ['.hero__text', '.nothing'];
@@ -9,4 +11,5 @@ export const init = () => {
   acc();
   burgerMenu();
   fly();
+  renderLists();
 };
