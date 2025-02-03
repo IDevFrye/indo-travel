@@ -1,63 +1,76 @@
 import {fetchRequest} from './data.js';
-import {renderLists} from './render.js';
+import {declension} from './interaction/timer.js';
 
 export const bookingFormControl = () => {
-  const formContainer = document.querySelector('.reservation__container');
+  const people = ['человек', 'человека', 'человек'];
   let form = document.querySelector('.reservation__form'); 
 
   const modalOverlay = document.createElement('div');
-  modalOverlay.classList.add('modal__overlay');
+  modalOverlay.classList.add('overlay');
   document.body.appendChild(modalOverlay);
 
   const modal = document.createElement('div');
   modal.classList.add('modal');
   modal.innerHTML = `
-    <div class="modal__content">
-      <h2 class="modal__title"></h2>
-      <p class="modal__message"></p>
-      <button class="modal__close"></button>
+    <h2 class="modal__title">Подтверждение заявки</h2>
+    <p class="modal__text modal__text_people"></p>
+    <p class="modal__text modal__text_dates"></p>
+    <p class="modal__text modal__text_price"></p>
+    <div class="modal__button">
+      <button class="modal__btn modal__btn_confirm">Подтверждаю</button>
+      <button class="modal__btn modal__btn_edit">Изменить данные</button>
     </div>
   `;
   document.body.appendChild(modal);
 
-  const modalTitle = modal.querySelector('.modal__title');
-  const modalMessage = modal.querySelector('.modal__message');
-  let modalClose = modal.querySelector('.modal__close');
+  const styles = new Set();
+  const loadModalStyles = url => {
+    if (styles.has(url)) return;
+    return new Promise((resolve) => {
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = url;
+      link.addEventListener('load', () => {
+        resolve();
+      });
+      document.head.append(link);
+      styles.add(url);
+    });
+  };
 
-  const showModal = (title, message, buttonClass, button) => {
-    modalTitle.innerHTML = title;
-    modalMessage.textContent = message;
-    modalClose.classList.remove('modal__close');
-    modalClose.classList.add(`${buttonClass}`);
-    if (button === 'success') {
-      modalClose.innerHTML = `<img src='../../img/Ok.png' class="modal__image">`;
-    } else {
-      modalClose.innerHTML = `${button}`;
-    }
-    modalClose = modal.querySelector(`.${buttonClass}`);
-    modalClose.addEventListener('click', closeModal);
+  const modalPeople = modal.querySelector('.modal__text_people');
+  const modalDates = modal.querySelector('.modal__text_dates');
+  const modalPrice = modal.querySelector('.modal__text_price');
+  const confirmBtn = modal.querySelector('.modal__btn_confirm');
+  const editBtn = modal.querySelector('.modal__btn_edit');
+
+  const showModal = async () => {
+    await loadModalStyles('../../css/modal.css');
+
+    const selectedPeople = form.people.value;
+    const selectedDates = form.dates.value;
+    const tourPrice = document.querySelector('.reservation__price').textContent;
+
+    modalPeople.textContent = `Бронирование путешествия в Индонезию на ${selectedPeople} ${declension(selectedPeople, people)}`;
+    modalDates.textContent = `В даты: ${selectedDates}`;
+    modalPrice.textContent = `Стоимость тура: ${tourPrice}`;
+
     modal.classList.add('modal__active');
-    modalOverlay.classList.add('modal__overlay__active');
+    modalOverlay.classList.add('overlay__active');
   };
 
   const closeModal = () => {
+    modalOverlay.classList.remove('overlay__active');
     modal.classList.remove('modal__active');
-    modalOverlay.classList.remove('modal__overlay__active');
   };
-
-  const setFormHeight = () => {
-    formContainer.style.minHeight = `${formContainer.scrollHeight}px`;
-    form.style.minHeight = `${formContainer.scrollHeight}px`;
-  };
-
-  setFormHeight();
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    showModal();
+  };
 
-    setFormHeight();
-
-    fetchRequest('https://jsonplaceholder.typicode.com/posts', {
+  const handleConfirm = async () => {
+    await fetchRequest('https://jsonplaceholder.typicode.com/posts', {
       method: 'POST',
       body: {
         title: form.reservation__name.value,
@@ -73,21 +86,20 @@ export const bookingFormControl = () => {
       callback(err, data) {
         if (err) {
           console.warn(err, data);
-          showModal('Упс... Что-то пошло не так', 'Не удалось отправить заявку. Пожалуйста, повторите отправку еще раз',
-            'modal__close__info', 'Забронировать');
+          alert('Ошибка при отправке. Попробуйте снова.');
         } else {
-          showModal('Ваша заявка успешно<br>отправлена', 'Наши менеджеры свяжутся с вами в течении 3-х рабочих дней',
-            'modal__close__success', 'success');
-          form.reset();
-          renderLists();
+          form.querySelectorAll('input, select, button').forEach((el) => el.setAttribute('disabled', true));
+          closeModal();
+          alert(`Заявка отправлена! Номер заявки: ${data.id}`);
         }
       },
     });
   };
 
   form.addEventListener('submit', handleSubmit);
+  confirmBtn.addEventListener('click', handleConfirm);
+  editBtn.addEventListener('click', closeModal);
 };
-
 
 export const footerFormControl = () => {
   let form = document.querySelector('.footer__form');
