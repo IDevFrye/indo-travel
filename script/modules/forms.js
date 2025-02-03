@@ -2,9 +2,61 @@ import {fetchRequest} from './data.js';
 import {renderLists} from './render.js';
 
 export const bookingFormControl = () => {
-  const form = document.querySelector('.reservation__form');
-  form.addEventListener('submit', (e) => {
+  const formContainer = document.querySelector('.reservation__container');
+  let form = document.querySelector('.reservation__form'); 
+
+  const modalOverlay = document.createElement('div');
+  modalOverlay.classList.add('modal__overlay');
+  document.body.appendChild(modalOverlay);
+
+  const modal = document.createElement('div');
+  modal.classList.add('modal');
+  modal.innerHTML = `
+    <div class="modal__content">
+      <h2 class="modal__title"></h2>
+      <p class="modal__message"></p>
+      <button class="modal__close"></button>
+    </div>
+  `;
+  document.body.appendChild(modal);
+
+  const modalTitle = modal.querySelector('.modal__title');
+  const modalMessage = modal.querySelector('.modal__message');
+  let modalClose = modal.querySelector('.modal__close');
+
+  const showModal = (title, message, buttonClass, button) => {
+    modalTitle.innerHTML = title;
+    modalMessage.textContent = message;
+    modalClose.classList.remove('modal__close');
+    modalClose.classList.add(`${buttonClass}`);
+    if (button === 'success') {
+      modalClose.innerHTML = `<img src='../../img/Ok.png' class="modal__image">`;
+    } else {
+      modalClose.innerHTML = `${button}`;
+    }
+    modalClose = modal.querySelector(`.${buttonClass}`);
+    modalClose.addEventListener('click', closeModal);
+    modal.classList.add('modal__active');
+    modalOverlay.classList.add('modal__overlay__active');
+  };
+
+  const closeModal = () => {
+    modal.classList.remove('modal__active');
+    modalOverlay.classList.remove('modal__overlay__active');
+  };
+
+  const setFormHeight = () => {
+    formContainer.style.minHeight = `${formContainer.scrollHeight}px`;
+    form.style.minHeight = `${formContainer.scrollHeight}px`;
+  };
+
+  setFormHeight();
+
+  const handleSubmit = (e) => {
     e.preventDefault();
+
+    setFormHeight();
+
     fetchRequest('https://jsonplaceholder.typicode.com/posts', {
       method: 'POST',
       body: {
@@ -13,70 +65,29 @@ export const bookingFormControl = () => {
           dates: form.dates.value,
           people: form.people.value,
           phone: form.reservation__phone.value,
-        }
-      },
-      callback(err, data) {
-        if (err) {
-          console.warn(err, data);
-          form.textContent = `К сожалению, заявка не была отправлена (${err})`;
-          setTimeout(() => bookingFormReload(), 3000);
-        }
-        form.textContent = `Ваша заявка успешно отправлена, номер заявки: ${data.id}`;
-        setTimeout(() => bookingFormReload(), 3000);
+        },
       },
       headers: {
         'Content-Type': 'application/json',
       },
+      callback(err, data) {
+        if (err) {
+          console.warn(err, data);
+          showModal('Упс... Что-то пошло не так', 'Не удалось отправить заявку. Пожалуйста, повторите отправку еще раз',
+            'modal__close__info', 'Забронировать');
+        } else {
+          showModal('Ваша заявка успешно<br>отправлена', 'Наши менеджеры свяжутся с вами в течении 3-х рабочих дней',
+            'modal__close__success', 'success');
+          form.reset();
+          renderLists();
+        }
+      },
     });
-  });
-
-  const bookingFormReload = () => {
-    form.innerHTML = `
-    <h2 class="reservation__title">Бронирование тура</h2>
-    <div class="reservation__inputs">
-      <div class="reservation__selects">
-        <label class="reservation__select-wrapper reservation__select-wrapper_date">
-          <select name="dates" id="reservation__date" class="reservation__select" required>
-            <option value="" class="tour__option">Дата путешествия</option>
-            <option value="4.02 - 18.02" class="tour__option reservation__option">4.02 - 18.02</option>
-            <option value="7.02 - 21.02" class="tour__option reservation__option">7.02 - 21.02</option>
-            <option value="12.02 - 26.02" class="tour__option reservation__option">12.02 - 26.02</option>
-            <option value="20.02 - 6.03" class="tour__option reservation__option">20.02 - 6.03</option>
-          </select>
-        </label>
-        <label class="reservation__select-wrapper reservation__select-wrapper_people">
-          <select name="people" id="reservation__people" class="reservation__select" required>
-            <option value="" class="tour__option reservation__option">Количество человек</option>
-            <option value="" class="tour__option reservation__option">1</option>
-            <option value="" class="tour__option reservation__option">2</option>
-            <option value="" class="tour__option reservation__option">3</option>
-            <option value="" class="tour__option reservation__option">4</option>
-            <option value="" class="tour__option reservation__option">5</option>
-            <option value="" class="tour__option reservation__option">6</option>
-          </select>
-        </label>
-      </div>
-    </div>
-    <div class="reservation__contacts">
-      <div class="reservation__input-wrap">
-        <label for="reservation__name" class="reservation__label">ФИО</label>
-        <input required type="text" class="reservation__input reservation__input_name" id="reservation__name" placeholder="Введите ваше ФИО">
-      </div>
-      <div class="reservation__input-wrap">
-        <label for="reservation__phone" class="reservation__label">Телефон</label>
-        <input required type="text" class="reservation__input" id="reservation__phone" placeholder="Введите номер телефона">
-      </div>
-    </div>
-    <div class="reservation__bottom">
-      <div class="reservation__info">
-        <p class="reservation__data"></p>
-        <p class="reservation__price"></p>
-      </div>
-      <button class="button reservation__button">Забронировать</button>
-    </div>`;
-    renderLists();
   };
+
+  form.addEventListener('submit', handleSubmit);
 };
+
 
 export const footerFormControl = () => {
   let form = document.querySelector('.footer__form');
@@ -84,8 +95,17 @@ export const footerFormControl = () => {
   let formText = document.querySelector('.footer__text');
   let formInput = document.querySelector('.footer__input-wrap');
 
+  const formHeight = form.scrollHeight;
+
+  const setFormHeight = () => {
+    form.style.minHeight = `${formHeight}px`;
+  };
+
+  setFormHeight();
+
   const handleSubmit = (e) => {
     e.preventDefault();
+    setFormHeight();
 
     fetchRequest('https://jsonplaceholder.typicode.com/posts', {
       method: 'POST',

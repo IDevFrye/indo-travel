@@ -1733,6 +1733,95 @@ p {
 		border-radius: 12px;
 }
 
+.modal {
+	width: 980px;
+	height: 495px;
+	border-radius: 30px;
+	border: 1px;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 980px;
+  padding: 20px;
+  background: white;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease-in-out, visibility 0.3s;
+	z-index: 1001;
+}
+
+.modal__overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5); 
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease-in-out, visibility 0.3s;
+  z-index: 1000;
+}
+
+.modal__overlay__active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.modal__active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.modal__close__success {
+  border: none;
+  cursor: pointer;
+}
+
+.modal__close__info {
+  width: 360px;
+	height: 76px;
+	border-radius: 12px;
+	background: #FCB500;
+	font-family: Nunito;
+	font-size: 18px;
+	font-weight: 700;
+	line-height: 27px;
+	text-align: center;
+	text-underline-position: from-font;
+	text-decoration-skip-ink: none;
+	color: rgb(255, 255, 255);
+}
+
+.modal__message {
+	color: rgb(48, 48, 48);
+	font-family: Nunito;
+	font-size: 18px;
+	font-weight: 700;
+	line-height: 150%;
+	letter-spacing: 0%;
+	margin: 0px auto 64px auto;
+}
+
+.modal__title {
+	color: rgb(48, 48, 48);
+	font-family: Merriweather;
+	font-size: 34px;
+	font-weight: 400;
+	line-height: 150%;
+	letter-spacing: 2%;
+	text-align: center;
+	margin: 77px auto 40px auto;
+}
+
+.modal__image {
+	width: 100px;
+	height: 100px;
+}
+
 .footer {
 		padding: 80px 0;
 		background: -o-linear-gradient(bottom, rgba(0, 0, 0, 0.74), rgba(0, 0, 0, 0.74)), url("../img/footer/background.jpg") center/cover no-repeat;
