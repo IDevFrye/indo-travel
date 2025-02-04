@@ -38,6 +38,16 @@ export const bookingFormControl = () => {
     });
   };
 
+  const inputName = form.reservation__name;
+  inputName.addEventListener('input', () => {
+    inputName.value = inputName.value.replace(/[^а-яА-ЯёЁ ]/, '');
+  });
+
+  const inputPhone = form.reservation__phone;
+  inputPhone.addEventListener('input', () => {
+    inputPhone.value = inputPhone.value.replace(/[^+0-9]/, '');
+  });
+
   const modalPeople = modal.querySelector('.modal__text_people');
   const modalDates = modal.querySelector('.modal__text_dates');
   const modalPrice = modal.querySelector('.modal__text_price');
@@ -66,6 +76,13 @@ export const bookingFormControl = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    const inputName = form.reservation__name.value.trim();
+    const nameRegExp = /^(\S+\s+){2,}\S+$/;
+    if (!nameRegExp.test(inputName)) {
+      alert('Введите ФИО полностью (минимум три слова)!');
+      return;
+    }
     showModal();
   };
 
