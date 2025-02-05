@@ -38,6 +38,8 @@ export const bookingFormControl = () => {
     });
   };
 
+  const inputDates = form.reservation__date;
+  const inputPeople = form.reservation__people;
   const inputName = form.reservation__name;
   const inputPhone = form.reservation__phone;
   const modalPeople = modal.querySelector('.modal__text_people');
@@ -52,6 +54,18 @@ export const bookingFormControl = () => {
   const validator = new JustValidate(form);
 
   validator
+    .addField(inputDates, [
+      {
+        rule: 'required',
+        errorMessage: 'Поле обязательно для заполнения',
+      }
+    ])
+    .addField(inputPeople, [
+      {
+        rule: 'required',
+        errorMessage: 'Поле обязательно для заполнения',
+      }
+    ])
     .addField(inputName, [
       {
         rule: 'required',
