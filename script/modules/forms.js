@@ -39,20 +39,58 @@ export const bookingFormControl = () => {
   };
 
   const inputName = form.reservation__name;
-  inputName.addEventListener('input', () => {
-    inputName.value = inputName.value.replace(/[^а-яА-ЯёЁ ]/, '');
-  });
-
   const inputPhone = form.reservation__phone;
-  inputPhone.addEventListener('input', () => {
-    inputPhone.value = inputPhone.value.replace(/[^+0-9]/, '');
-  });
-
   const modalPeople = modal.querySelector('.modal__text_people');
   const modalDates = modal.querySelector('.modal__text_dates');
   const modalPrice = modal.querySelector('.modal__text_price');
   const confirmBtn = modal.querySelector('.modal__btn_confirm');
   const editBtn = modal.querySelector('.modal__btn_edit');
+
+  const inputMask = new Inputmask("+7 (999) 999-99-99");
+  inputMask.mask(inputPhone);
+
+  const validator = new JustValidate(form);
+
+  validator
+    .addField(inputName, [
+      {
+        rule: 'required',
+        errorMessage: 'Поле обязательно для заполнения',
+      },
+      {
+        rule: 'customRegexp',
+        value: /^[а-яА-ЯёЁ\s]+$/,
+        errorMessage: 'Только русские буквы',
+      },
+      {
+        rule: 'minLength',
+        value: 7,
+        errorMessage: 'Введите полное ФИО (не менее 7 символов)',
+      },
+      {
+        rule: 'function',
+        validator: () => {
+          return inputName.value.trim().split(/\s+/).length >= 3;
+        },
+        errorMessage: 'Введите минимум 3 слова (Фамилия Имя Отчество)',
+      }
+    ])
+    .addField(inputPhone, [
+      {
+        rule: 'required',
+        errorMessage: 'Введите номер телефона',
+      },
+      {
+        rule: 'function',
+        validator: function () {
+          return inputPhone.value.replace(/\D/g, "").length === 11;
+        },
+        errorMessage: 'Введите корректный номер телефона',
+      }
+    ])
+    .onSuccess(() => showModal());
+  
+  
 
   const showModal = async () => {
     await loadModalStyles('../../css/modal.css');
@@ -77,13 +115,7 @@ export const bookingFormControl = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const inputName = form.reservation__name.value.trim();
-    const nameRegExp = /^(\S+\s+){2,}\S+$/;
-    if (!nameRegExp.test(inputName)) {
-      alert('Введите ФИО полностью (минимум три слова)!');
-      return;
-    }
-    showModal();
+    validator.revalidate();
   };
 
   const handleConfirm = async () => {
